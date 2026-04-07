@@ -1,0 +1,1226 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Timer Tracker</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #0a0e17;
+            --bg-card: #131a2b;
+            --bg-card-hover: #1a2339;
+            --primary: #00d4ff;
+            --warning: #ffaa00;
+            --danger: #ff3366;
+            --success: #00ff88;
+            --text-primary: #e4e9f2;
+            --text-secondary: #6b7a99;
+            --border: #1e2a42;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif;
+            background: var(--bg-primary);
+            color: var(--text-primary);
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, var(--primary), var(--success));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 1rem;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+        }
+
+        .stat-item {
+            background: var(--bg-card);
+            padding: 1rem 1.5rem;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+
+        .stat-value {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 1.5rem;
+            font-weight: 600;
+            color: var(--primary);
+        }
+
+        .stat-label {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-top: 0.25rem;
+        }
+
+        .form-section {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--border);
+        }
+
+        .form-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .form-title svg {
+            color: var(--primary);
+        }
+
+        .form-row {
+            display: flex;
+            gap: 1rem;
+            align-items: flex-end;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            display: flex;
+            flex-direction: column;
+            gap: 0.5rem;
+        }
+
+        .form-group.email-group {
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .form-group.duration-group {
+            flex-direction: row;
+            align-items: flex-end;
+            gap: 0.5rem;
+        }
+
+        .duration-input {
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+        }
+
+        .duration-input label {
+            font-size: 0.7rem;
+            color: var(--text-secondary);
+            text-align: center;
+        }
+
+        .duration-input input {
+            width: 70px;
+            text-align: center;
+            padding: 0.75rem 0.5rem;
+        }
+
+        .duration-unit {
+            font-size: 0.75rem;
+            color: var(--text-secondary);
+            text-align: center;
+            margin-bottom: 0.5rem;
+        }
+
+        label {
+            font-size: 0.875rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+        }
+
+        input {
+            background: var(--bg-primary);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 0.875rem 1rem;
+            font-size: 1rem;
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: border-color 0.2s, box-shadow 0.2s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(0, 212, 255, 0.1);
+        }
+
+        input::placeholder {
+            color: var(--text-secondary);
+        }
+
+        input.error {
+            border-color: var(--danger);
+        }
+
+        .error-text {
+            font-size: 0.75rem;
+            color: var(--danger);
+            min-height: 1rem;
+        }
+
+        button {
+            background: linear-gradient(135deg, var(--primary), #00a8cc);
+            border: none;
+            border-radius: 8px;
+            padding: 0.875rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: var(--bg-primary);
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            white-space: nowrap;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(0, 212, 255, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .timers-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .timer-card {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 1.5rem;
+            border: 1px solid var(--border);
+            position: relative;
+            transition: transform 0.2s, box-shadow 0.2s, border-color 0.3s;
+            animation: slideIn 0.3s ease-out;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .timer-card:hover {
+            background: var(--bg-card-hover);
+            transform: translateY(-4px);
+            box-shadow: 0 12px 40px rgba(0, 0, 0, 0.3);
+        }
+
+        .timer-card.status-idle {
+            border-left: 4px solid var(--text-secondary);
+        }
+
+        .timer-card.status-active {
+            border-left: 4px solid var(--success);
+        }
+
+        .timer-card.status-active.warning {
+            border-left: 4px solid var(--warning);
+        }
+
+        .timer-card.status-active.danger {
+            border-left: 4px solid var(--danger);
+        }
+
+        .timer-card.status-paused {
+            border-left: 4px solid var(--warning);
+        }
+
+        .timer-card.status-expired {
+            border-left: 4px solid var(--text-secondary);
+            opacity: 0.7;
+        }
+
+        .delete-btn {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-secondary);
+            padding: 0.5rem;
+            border-radius: 6px;
+            cursor: pointer;
+            opacity: 0;
+            transition: opacity 0.2s, background 0.2s, color 0.2s;
+        }
+
+        .timer-card:hover .delete-btn {
+            opacity: 1;
+        }
+
+        .delete-btn:hover {
+            background: var(--danger);
+            border-color: var(--danger);
+            color: white;
+        }
+
+        .timer-email {
+            font-weight: 600;
+            font-size: 1.1rem;
+            margin-bottom: 0.25rem;
+            padding-right: 2rem;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .timer-original {
+            font-size: 0.875rem;
+            color: var(--text-secondary);
+            margin-bottom: 1rem;
+        }
+
+        .countdown {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2rem;
+            font-weight: 700;
+            text-align: center;
+            padding: 1rem;
+            background: var(--bg-primary);
+            border-radius: 12px;
+            margin-bottom: 1rem;
+            transition: color 0.3s;
+        }
+
+        .countdown.idle {
+            color: var(--text-secondary);
+        }
+
+        .countdown.active {
+            color: var(--success);
+        }
+
+        .countdown.warning {
+            color: var(--warning);
+        }
+
+        .countdown.danger {
+            color: var(--danger);
+            animation: pulse 1s ease-in-out infinite;
+        }
+
+        .countdown.paused {
+            color: var(--warning);
+        }
+
+        .countdown.expired {
+            color: var(--text-secondary);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.6; }
+        }
+
+        .timer-controls {
+            display: flex;
+            gap: 0.5rem;
+            margin-bottom: 1rem;
+            flex-wrap: wrap;
+        }
+
+        .timer-controls button {
+            flex: 1;
+            min-width: 80px;
+            padding: 0.625rem 0.75rem;
+            font-size: 0.875rem;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-card-hover);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .btn-pause {
+            background: linear-gradient(135deg, var(--warning), #cc8800);
+        }
+
+        .btn-pause:hover {
+            box-shadow: 0 8px 24px rgba(255, 170, 0, 0.3);
+        }
+
+        .btn-resume {
+            background: linear-gradient(135deg, var(--success), #00cc6a);
+        }
+
+        .btn-resume:hover {
+            box-shadow: 0 8px 24px rgba(0, 255, 136, 0.3);
+        }
+
+        .btn-edit {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--primary);
+            flex: 0;
+            padding: 0.625rem;
+        }
+
+        .btn-edit:hover {
+            background: rgba(0, 212, 255, 0.1);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .status-row {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 0.5rem 1rem;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .status-badge.idle {
+            background: rgba(107, 122, 153, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .status-badge.active {
+            background: rgba(0, 255, 136, 0.15);
+            color: var(--success);
+        }
+
+        .status-badge.warning {
+            background: rgba(255, 170, 0, 0.15);
+            color: var(--warning);
+        }
+
+        .status-badge.danger {
+            background: rgba(255, 51, 102, 0.15);
+            color: var(--danger);
+        }
+
+        .status-badge.paused {
+            background: rgba(255, 170, 0, 0.15);
+            color: var(--warning);
+        }
+
+        .status-badge.expired {
+            background: rgba(107, 122, 153, 0.15);
+            color: var(--text-secondary);
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: var(--text-secondary);
+        }
+
+        .empty-icon {
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 1.5rem;
+            opacity: 0.5;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .empty-state h3 {
+            font-size: 1.25rem;
+            color: var(--text-primary);
+            margin-bottom: 0.5rem;
+        }
+
+        .empty-state p {
+            font-size: 0.875rem;
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.7);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.2s, visibility 0.2s;
+        }
+
+        .modal-overlay.show {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-box {
+            background: var(--bg-card);
+            border-radius: 16px;
+            padding: 2rem;
+            max-width: 500px;
+            width: 90%;
+            border: 1px solid var(--border);
+            transform: scale(0.9);
+            transition: transform 0.2s;
+        }
+
+        .modal-overlay.show .modal-box {
+            transform: scale(1);
+        }
+
+        .modal-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1.5rem;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .modal-title svg {
+            color: var(--primary);
+        }
+
+        .modal-form {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        .modal-buttons {
+            display: flex;
+            gap: 1rem;
+            justify-content: flex-end;
+            margin-top: 1.5rem;
+        }
+
+        .cancel-btn {
+            background: transparent;
+            border: 1px solid var(--border);
+            color: var(--text-primary);
+        }
+
+        .cancel-btn:hover {
+            background: var(--bg-card-hover);
+            box-shadow: none;
+            transform: none;
+        }
+
+        .confirm-delete-btn {
+            background: var(--danger);
+        }
+
+        .confirm-delete-btn:hover {
+            box-shadow: 0 8px 24px rgba(255, 51, 102, 0.3);
+        }
+
+        .dialog-message {
+            color: var(--text-secondary);
+            margin-bottom: 1.5rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row {
+                flex-direction: column;
+            }
+            
+            .form-group.email-group {
+                width: 100%;
+            }
+            
+            .form-group.duration-group {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .duration-input input {
+                width: 80px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Timer Tracker</h1>
+            <p class="subtitle">Track when to get fresh tokens</p>
+            <div class="stats">
+                <div class="stat-item">
+                    <div class="stat-value" id="total-count">0</div>
+                    <div class="stat-label">Total Timers</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="active-count">0</div>
+                    <div class="stat-label">Active</div>
+                </div>
+                <div class="stat-item">
+                    <div class="stat-value" id="expired-count">0</div>
+                    <div class="stat-label">Expired</div>
+                </div>
+            </div>
+        </header>
+
+        <section class="form-section">
+            <h2 class="form-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <line x1="12" y1="8" x2="12" y2="16"></line>
+                    <line x1="8" y1="12" x2="16" y2="12"></line>
+                </svg>
+                Add New Timer
+            </h2>
+            <form id="timer-form">
+                <div class="form-row">
+                    <div class="form-group email-group">
+                        <label for="email">Email Address</label>
+                        <input type="email" id="email" placeholder="user@example.com" required>
+                        <div class="error-text" id="email-error"></div>
+                    </div>
+                    <div class="form-group duration-group">
+                        <div class="duration-input">
+                            <label for="days">Days</label>
+                            <input type="number" id="days" min="0" max="365" value="0">
+                        </div>
+                        <div class="duration-input">
+                            <label for="hours">Hours</label>
+                            <input type="number" id="hours" min="0" max="23" value="0">
+                        </div>
+                        <div class="duration-input">
+                            <label for="minutes">Minutes</label>
+                            <input type="number" id="minutes" min="0" max="59" value="30">
+                        </div>
+                    </div>
+                    <button type="submit">
+                        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <line x1="12" y1="5" x2="12" y2="19"></line>
+                            <line x1="5" y1="12" x2="19" y2="12"></line>
+                        </svg>
+                        Add Timer
+                    </button>
+                </div>
+            </form>
+        </section>
+
+        <div id="timers-container">
+            <div class="timers-grid" id="timers-grid"></div>
+            <div class="empty-state" id="empty-state">
+                <svg class="empty-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <polyline points="12,6 12,12 16,14"></polyline>
+                </svg>
+                <h3>No Timers Set</h3>
+                <p>Add your first timer to start tracking refresh schedules</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="edit-modal">
+        <div class="modal-box">
+            <h3 class="modal-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                    <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                </svg>
+                Edit Timer
+            </h3>
+            <form class="modal-form" id="edit-form">
+                <input type="hidden" id="edit-id">
+                <div class="form-group">
+                    <label for="edit-email">Email Address</label>
+                    <input type="email" id="edit-email" placeholder="user@example.com" required>
+                    <div class="error-text" id="edit-email-error"></div>
+                </div>
+                <div class="form-group duration-group">
+                    <div class="duration-input">
+                        <label for="edit-days">Days</label>
+                        <input type="number" id="edit-days" min="0" max="365" value="0">
+                    </div>
+                    <div class="duration-input">
+                        <label for="edit-hours">Hours</label>
+                        <input type="number" id="edit-hours" min="0" max="23" value="0">
+                    </div>
+                    <div class="duration-input">
+                        <label for="edit-minutes">Minutes</label>
+                        <input type="number" id="edit-minutes" min="0" max="59" value="30">
+                    </div>
+                </div>
+                <div class="modal-buttons">
+                    <button type="button" class="cancel-btn" onclick="closeEditModal()">Cancel</button>
+                    <button type="submit">Save Changes</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="confirm-dialog">
+        <div class="modal-box">
+            <h3 class="modal-title">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="3,6 5,6 21,6"></polyline>
+                    <path d="M19,6v14a2,2,0,0,1-2,2H7a2,2,0,0,1-2-2V6m3,0V4a2,2,0,0,1,2-2h4a2,2,0,0,1,2,2v2"></path>
+                </svg>
+                Delete Timer
+            </h3>
+            <p class="dialog-message">Are you sure you want to delete this timer? This action cannot be undone.</p>
+            <div class="modal-buttons">
+                <button type="button" class="cancel-btn" id="cancel-delete">Cancel</button>
+                <button type="button" class="confirm-delete-btn" id="confirm-delete">Delete</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const STORAGE_KEY = 'timerTracker';
+        let timers = [];
+        let deleteTargetId = null;
+        let intervalId = null;
+
+        const timersGrid = document.getElementById('timers-grid');
+        const emptyState = document.getElementById('empty-state');
+        const timerForm = document.getElementById('timer-form');
+        const emailInput = document.getElementById('email');
+        const daysInput = document.getElementById('days');
+        const hoursInput = document.getElementById('hours');
+        const minutesInput = document.getElementById('minutes');
+        const emailError = document.getElementById('email-error');
+        const editModal = document.getElementById('edit-modal');
+        const editForm = document.getElementById('edit-form');
+        const editIdInput = document.getElementById('edit-id');
+        const editEmailInput = document.getElementById('edit-email');
+        const editDaysInput = document.getElementById('edit-days');
+        const editHoursInput = document.getElementById('edit-hours');
+        const editMinutesInput = document.getElementById('edit-minutes');
+        const editEmailError = document.getElementById('edit-email-error');
+        const confirmDialog = document.getElementById('confirm-dialog');
+        const cancelDeleteBtn = document.getElementById('cancel-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        const totalCount = document.getElementById('total-count');
+        const activeCount = document.getElementById('active-count');
+        const expiredCount = document.getElementById('expired-count');
+
+        function loadTimers() {
+            const stored = localStorage.getItem(STORAGE_KEY);
+            if (stored) {
+                timers = JSON.parse(stored);
+                timers.forEach(t => {
+                    if (t.status === 'active' && t.targetTime && t.targetTime <= Date.now()) {
+                        t.status = 'expired';
+                    }
+                });
+                saveTimers();
+            }
+        }
+
+        function saveTimers() {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(timers));
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).substr(2);
+        }
+
+        function formatCountdown(ms) {
+            if (ms <= 0) return '00:00:00:00';
+            
+            const seconds = Math.floor((ms / 1000) % 60);
+            const minutes = Math.floor((ms / (1000 * 60)) % 60);
+            const hours = Math.floor((ms / (1000 * 60 * 60)) % 24);
+            const days = Math.floor(ms / (1000 * 60 * 60 * 24));
+
+            const pad = (n) => n.toString().padStart(2, '0');
+            return `${pad(days)}:${pad(hours)}:${pad(minutes)}:${pad(seconds)}`;
+        }
+
+        function formatDuration(days, hours, minutes) {
+            const parts = [];
+            if (days > 0) parts.push(`${days}d`);
+            if (hours > 0) parts.push(`${hours}h`);
+            if (minutes > 0) parts.push(`${minutes}m`);
+            if (parts.length === 0) parts.push('0m');
+            return parts.join(' ');
+        }
+
+        function getCountdownClass(timer) {
+            if (timer.status === 'idle') return 'idle';
+            if (timer.status === 'expired') return 'expired';
+            if (timer.status === 'paused') return 'paused';
+            
+            if (timer.status === 'active') {
+                const remaining = timer.targetTime - Date.now();
+                if (remaining <= 10 * 60 * 1000) return 'danger';
+                if (remaining <= 60 * 60 * 1000) return 'warning';
+                return 'active';
+            }
+            return '';
+        }
+
+        function getStatusClass(timer) {
+            if (timer.status === 'idle') return 'idle';
+            if (timer.status === 'paused') return 'paused';
+            if (timer.status === 'expired') return 'expired';
+            
+            if (timer.status === 'active') {
+                const remaining = timer.targetTime - Date.now();
+                if (remaining <= 10 * 60 * 1000) return 'danger';
+                if (remaining <= 60 * 60 * 1000) return 'warning';
+                return 'active';
+            }
+            return '';
+        }
+
+        function getStatusLabel(timer) {
+            if (timer.status === 'idle') return 'IDLE';
+            if (timer.status === 'paused') return 'PAUSED';
+            if (timer.status === 'expired') return 'EXPIRED';
+            
+            if (timer.status === 'active') {
+                const remaining = timer.targetTime - Date.now();
+                if (remaining <= 10 * 60 * 1000) return 'CRITICAL';
+                if (remaining <= 60 * 60 * 1000) return 'WARNING';
+                return 'ACTIVE';
+            }
+            return timer.status.toUpperCase();
+        }
+
+        function escapeHtml(text) {
+            const div = document.createElement('div');
+            div.textContent = text;
+            return div.innerHTML;
+        }
+
+        function getRemainingMs(timer) {
+            if (timer.status === 'paused') {
+                return timer.pausedRemaining;
+            }
+            if (timer.status === 'active' && timer.targetTime) {
+                return Math.max(0, timer.targetTime - Date.now());
+            }
+            if (timer.status === 'idle' || timer.status === 'expired') {
+                return timer.durationMs;
+            }
+            return 0;
+        }
+
+        function renderTimerCard(timer) {
+            const statusClass = getStatusClass(timer);
+            const countdownClass = getCountdownClass(timer);
+            const remaining = getRemainingMs(timer);
+            
+            const card = document.createElement('div');
+            card.className = `timer-card status-${timer.status} ${statusClass}`;
+            card.dataset.id = timer.id;
+            
+            const canStart = timer.status === 'idle';
+            const canPause = timer.status === 'active';
+            const canResume = timer.status === 'paused';
+            
+            card.innerHTML = `
+                <button class="delete-btn" onclick="showDeleteConfirm('${timer.id}')" aria-label="Delete timer">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <line x1="18" y1="6" x2="6" y2="18"></line>
+                        <line x1="6" y1="6" x2="18" y2="18"></line>
+                    </svg>
+                </button>
+                <div class="timer-email">${escapeHtml(timer.email)}</div>
+                <div class="timer-original">Originally: ${formatDuration(timer.durationDays, timer.durationHours, timer.durationMinutes)}</div>
+                <div class="countdown ${countdownClass}" data-id="${timer.id}">
+                    ${formatCountdown(remaining)}
+                </div>
+                <div class="timer-controls">
+                    ${canStart ? `<button class="btn-start" onclick="startTimer('${timer.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"></polygon></svg> START</button>` : ''}
+                    ${canPause ? `<button class="btn-pause" onclick="pauseTimer('${timer.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><rect x="6" y="4" width="4" height="16"></rect><rect x="14" y="4" width="4" height="16"></rect></svg> PAUSE</button>` : ''}
+                    ${canResume ? `<button class="btn-resume" onclick="resumeTimer('${timer.id}')"><svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><polygon points="5,3 19,12 5,21"></polygon></svg> RESUME</button>` : ''}
+                    <button class="btn-edit" onclick="openEditModal('${timer.id}')" aria-label="Edit timer">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="status-row">
+                    <span class="status-badge ${statusClass}">${getStatusLabel(timer)}</span>
+                </div>
+            `;
+            
+            return card;
+        }
+
+        function renderTimers() {
+            timersGrid.innerHTML = '';
+            
+            if (timers.length === 0) {
+                emptyState.style.display = 'block';
+                timersGrid.style.display = 'none';
+            } else {
+                emptyState.style.display = 'none';
+                timersGrid.style.display = 'grid';
+                
+                const sortedTimers = [...timers].sort((a, b) => {
+                    const aRemaining = getRemainingMs(a);
+                    const bRemaining = getRemainingMs(b);
+                    return aRemaining - bRemaining;
+                });
+                
+                sortedTimers.forEach(timer => {
+                    timersGrid.appendChild(renderTimerCard(timer));
+                });
+            }
+            
+            updateStats();
+        }
+
+        function updateCountdowns() {
+            const countdownElements = document.querySelectorAll('.countdown');
+            
+            countdownElements.forEach(el => {
+                const timerId = el.dataset.id;
+                const timer = timers.find(t => t.id === timerId);
+                if (!timer) return;
+                
+                const remaining = getRemainingMs(timer);
+                el.textContent = formatCountdown(remaining);
+                
+                const countdownClass = getCountdownClass(timer);
+                el.className = `countdown ${countdownClass}`;
+                
+                const card = el.closest('.timer-card');
+                if (card) {
+                    const statusClass = getStatusClass(timer);
+                    card.className = `timer-card status-${timer.status} ${statusClass}`;
+                    
+                    const badge = card.querySelector('.status-badge');
+                    if (badge) {
+                        badge.className = `status-badge ${statusClass}`;
+                        badge.textContent = getStatusLabel(timer);
+                    }
+                    
+                    if (timer.status === 'active' && remaining <= 0) {
+                        timer.status = 'expired';
+                        saveTimers();
+                        renderTimers();
+                    }
+                }
+            });
+            
+            updateStats();
+        }
+
+        function updateStats() {
+            totalCount.textContent = timers.length;
+            activeCount.textContent = timers.filter(t => t.status === 'active').length;
+            expiredCount.textContent = timers.filter(t => t.status === 'expired').length;
+        }
+
+        function startCountdown() {
+            if (intervalId) clearInterval(intervalId);
+            intervalId = setInterval(updateCountdowns, 1000);
+        }
+
+        function addTimer(email, days, hours, minutes) {
+            const durationMs = (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+            
+            const timer = {
+                id: generateId(),
+                email: email,
+                durationDays: days,
+                durationHours: hours,
+                durationMinutes: minutes,
+                durationMs: durationMs,
+                startedAt: null,
+                targetTime: null,
+                pausedRemaining: 0,
+                status: 'idle'
+            };
+            
+            timers.push(timer);
+            saveTimers();
+            renderTimers();
+        }
+
+        function startTimer(id) {
+            const timer = timers.find(t => t.id === id);
+            if (!timer) return;
+            
+            timer.status = 'active';
+            timer.startedAt = Date.now();
+            timer.targetTime = Date.now() + timer.durationMs;
+            timer.pausedRemaining = 0;
+            
+            saveTimers();
+            renderTimers();
+        }
+
+        function pauseTimer(id) {
+            const timer = timers.find(t => t.id === id);
+            if (!timer || timer.status !== 'active') return;
+            
+            timer.status = 'paused';
+            timer.pausedRemaining = Math.max(0, timer.targetTime - Date.now());
+            timer.targetTime = null;
+            
+            saveTimers();
+            renderTimers();
+        }
+
+        function resumeTimer(id) {
+            const timer = timers.find(t => t.id === id);
+            if (!timer || timer.status !== 'paused') return;
+            
+            timer.status = 'active';
+            timer.startedAt = Date.now();
+            timer.targetTime = Date.now() + timer.pausedRemaining;
+            
+            saveTimers();
+            renderTimers();
+        }
+
+        function deleteTimer(id) {
+            timers = timers.filter(t => t.id !== id);
+            saveTimers();
+            renderTimers();
+        }
+
+        function showDeleteConfirm(id) {
+            deleteTargetId = id;
+            confirmDialog.classList.add('show');
+        }
+
+        function hideDeleteConfirm() {
+            deleteTargetId = null;
+            confirmDialog.classList.remove('show');
+        }
+
+        function openEditModal(id) {
+            const timer = timers.find(t => t.id === id);
+            if (!timer) return;
+            
+            editIdInput.value = timer.id;
+            editEmailInput.value = timer.email;
+            editDaysInput.value = timer.durationDays;
+            editHoursInput.value = timer.durationHours;
+            editMinutesInput.value = timer.durationMinutes;
+            editEmailError.textContent = '';
+            editEmailInput.classList.remove('error');
+            
+            editModal.classList.add('show');
+        }
+
+        function closeEditModal() {
+            editModal.classList.remove('show');
+            editIdInput.value = '';
+            editEmailInput.value = '';
+        }
+
+        function saveTimer(id, email, days, hours, minutes) {
+            const timer = timers.find(t => t.id === id);
+            if (!timer) return;
+            
+            const durationMs = (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+            
+            timer.email = email;
+            timer.durationDays = days;
+            timer.durationHours = hours;
+            timer.durationMinutes = minutes;
+            timer.durationMs = durationMs;
+            
+            if (timer.status === 'idle') {
+                // Keep idle state, duration will apply on start
+            } else if (timer.status === 'active') {
+                // Restart with new duration
+                timer.startedAt = Date.now();
+                timer.targetTime = Date.now() + durationMs;
+            } else if (timer.status === 'paused') {
+                // Keep paused with new remaining time (capped at new duration)
+                timer.pausedRemaining = Math.min(timer.pausedRemaining, durationMs);
+            } else if (timer.status === 'expired') {
+                // Reset to idle with new duration
+                timer.status = 'idle';
+                timer.pausedRemaining = 0;
+                timer.targetTime = null;
+                timer.startedAt = null;
+            }
+            
+            saveTimers();
+            renderTimers();
+            closeEditModal();
+        }
+
+        function validateEmail(email) {
+            const re = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            return re.test(email);
+        }
+
+        function validateDuration(days, hours, minutes) {
+            const totalMs = (days * 24 * 60 * 60 * 1000) + (hours * 60 * 60 * 1000) + (minutes * 60 * 1000);
+            const minMs = 60 * 1000; // 1 minute
+            const maxMs = 365 * 24 * 60 * 60 * 1000; // 365 days
+            return totalMs >= minMs && totalMs <= maxMs;
+        }
+
+        timerForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const email = emailInput.value.trim();
+            const days = parseInt(daysInput.value) || 0;
+            const hours = parseInt(hoursInput.value) || 0;
+            const minutes = parseInt(minutesInput.value) || 0;
+            
+            let valid = true;
+            
+            emailError.textContent = '';
+            emailInput.classList.remove('error');
+            
+            if (!validateEmail(email)) {
+                emailError.textContent = 'Please enter a valid email address';
+                emailInput.classList.add('error');
+                valid = false;
+            }
+            
+            if (!validateDuration(days, hours, minutes)) {
+                emailError.textContent = 'Duration must be between 1 minute and 365 days';
+                emailInput.classList.add('error');
+                valid = false;
+            }
+            
+            if (!valid) return;
+            
+            addTimer(email, days, hours, minutes);
+            
+            emailInput.value = '';
+            daysInput.value = '0';
+            hoursInput.value = '0';
+            minutesInput.value = '30';
+            emailInput.focus();
+        });
+
+        editForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            
+            const id = editIdInput.value;
+            const email = editEmailInput.value.trim();
+            const days = parseInt(editDaysInput.value) || 0;
+            const hours = parseInt(editHoursInput.value) || 0;
+            const minutes = parseInt(editMinutesInput.value) || 0;
+            
+            let valid = true;
+            
+            editEmailError.textContent = '';
+            editEmailInput.classList.remove('error');
+            
+            if (!validateEmail(email)) {
+                editEmailError.textContent = 'Please enter a valid email address';
+                editEmailInput.classList.add('error');
+                valid = false;
+            }
+            
+            if (!validateDuration(days, hours, minutes)) {
+                editEmailError.textContent = 'Duration must be between 1 minute and 365 days';
+                editEmailInput.classList.add('error');
+                valid = false;
+            }
+            
+            if (!valid) return;
+            
+            saveTimer(id, email, days, hours, minutes);
+        });
+
+        cancelDeleteBtn.addEventListener('click', hideDeleteConfirm);
+        confirmDeleteBtn.addEventListener('click', () => {
+            if (deleteTargetId) {
+                deleteTimer(deleteTargetId);
+                hideDeleteConfirm();
+            }
+        });
+
+        confirmDialog.addEventListener('click', (e) => {
+            if (e.target === confirmDialog) {
+                hideDeleteConfirm();
+            }
+        });
+
+        editModal.addEventListener('click', (e) => {
+            if (e.target === editModal) {
+                closeEditModal();
+            }
+        });
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                if (confirmDialog.classList.contains('show')) {
+                    hideDeleteConfirm();
+                }
+                if (editModal.classList.contains('show')) {
+                    closeEditModal();
+                }
+            }
+        });
+
+        loadTimers();
+        renderTimers();
+        startCountdown();
+    </script>
+</body>
+</html>
